@@ -5,6 +5,7 @@ static int check_arguments(int argc, char **argv, int nbr_arg);
 static int init_mutexes(t_sim *sim);
 static int init_coders(t_sim *sim);
 static t_sim *init_sim(char **argv);
+int     init_dongles(t_sim *sim);
 
 int main(int argc, char **argv)
 {
@@ -22,6 +23,7 @@ int main(int argc, char **argv)
 		return 0;
 	init_mutexes(sim);
 	init_coders(sim);
+	init_dongles(sim);
 	return 1;
 }
 
@@ -85,12 +87,60 @@ static t_sim *init_sim(char **argv)
 		free(sim);
 		return NULL;
 	}
+	sim->start_time = get_time_ms()
 	return (sim);
+}
+
+int     init_dongles(t_sim *sim)
+{
+    int i;
+
+    i = 0;
+    while (i < sim->nb_coders)
+    {
+        sim->dongles[i].id = i;
+        sim->dongles[i].is_available = 1;
+        sim->dongles[i].available_at_ms = 0;
+        pthread_mutex_init(&sim->dongles[i].mutex, NULL);
+        pthread_cond_init(&sim->dongles[i].cond, NULL);
+        i++;
+    }
+    return (0);
+}
+
+int	launch_threads(t_sim *sim)
+{
+	int	i;
+
+	i = 0;
+	while (i < sim->nb_coders)
+	{
+		sim->coders[i].last_compile_start = sim->start_time;
+		pthread_create(&sim->threads[i], NULL,
+				 coder_routine, &sim->coders[i]);
+		i++;
+	}
+	pthread_create(&sim->monitor, NULL, monitor_routine, sim);
+	return (0);
+}
+
+int	join_threads(t_sim *sim)
+{
+	int	i;
+
+	i = 0;
+	while (i < sim->nb_coders)
+	{
+		pthread_join(&sim->threads[i], NULL);
+		i++;
+	}
+	pthread_join(sim->monitor, NULL);
+	return (0);
 }
 
 static int check_arguments(int argc, char **argv, int nbr_arg)
 {
-	int x;
+	int	x;
 	int	y;
 
 	x = 1;

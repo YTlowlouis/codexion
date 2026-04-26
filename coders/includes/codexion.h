@@ -31,6 +31,7 @@ typedef struct s_coder
     t_dongle        *left;
     t_dongle        *right;
     t_sim           *sim;              // pointeur vers la simulation
+	pthread_mutex_t	compile_mutex;
 }   t_coder;
 
 typedef struct s_sim
@@ -43,6 +44,7 @@ typedef struct s_sim
     int             nb_compiles_required;
     long            dongle_cooldown;
     char            *scheduler;        // "fifo" ou "edf"
+	long 			start_time;
 
     t_coder         *coders;
     t_dongle        *dongles;
@@ -53,5 +55,44 @@ typedef struct s_sim
     pthread_mutex_t log_mutex;         // protège printf
     pthread_mutex_t state_mutex;       // protège simulation_over
 }   t_sim;
+
+typedef struct s_request
+{
+	t_coder	*coder;
+	long	timestamp;
+	long	deadline;
+}	t_request;
+
+typedef struct s_pqueue
+{
+	t_request	*data;
+	int 		size;
+	int 		capacity;
+	char		*scheduler;
+}	t_pqueue;
+
+//	utils.c
+long	get_time_ms(void);
+int		is_sim_over(t_sim *sim);
+
+//	log.c
+void	log_state(t_sim *sim, int id, char *msg);
+void	log_burnout(t_sim *sim, int id);
+
+//	dongle.c
+void	release_dongle(t_dongle *dongle, t_sim *sim);
+void	take_dongle(t_dongle *dongle, t_coder *coder);
+void	take_two_dongle(t_coder *coder);
+
+//	coder.c
+void	*coder_routine(void *arg);
+
+//	main.c
+int	launch_threads(t_sim *sim);
+int	join_threads(t_sim *sim);
+
+//	monitor.c
+int	check_burnout(t_sim *sim);
+int	check_all_compiled(t_sim *sim);
 
 #endif // codexion_h
