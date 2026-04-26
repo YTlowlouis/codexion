@@ -1,5 +1,9 @@
 #include "codexion.h"
 
+static void	compile(t_coder *coder);
+static void	debug(t_coder *coder);
+static void	refactor(t_coder *coder);
+
 void	*coder_routine(void *arg)
 {
 	t_coder	*coder;
@@ -33,12 +37,14 @@ void	*coder_routine(void *arg)
 
 static void	compile(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->compile_mutex)
+	pthread_mutex_lock(&coder->compile_mutex);
 	coder->last_compile_start = get_time_ms();
-	pthread_mutex_unlock(&coder->compile_mutex)
+	pthread_mutex_unlock(&coder->compile_mutex);
 	log_state(coder->sim, coder->id, "is compiling");
 	usleep(coder->sim->time_to_compile * 1000);
+	pthread_mutex_lock(&coder->compile_mutex);
 	coder->compile_count++;
+	pthread_mutex_unlock(&coder->compile_mutex);
 }
 
 static void	debug(t_coder *coder)

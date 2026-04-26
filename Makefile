@@ -12,7 +12,8 @@ SRCS		= $(SRCS_DIR)/main.c \
 		  $(SRCS_DIR)/dongle.c \
 		  $(SRCS_DIR)/scheduler.c \
 		  $(SRCS_DIR)/log.c \
-		  $(SRCS_DIR)/utils.c
+		  $(SRCS_DIR)/utils.c \
+		  $(SRCS_DIR)/cleanup.c
 
 OBJS		= $(SRCS:.c=.o)
 

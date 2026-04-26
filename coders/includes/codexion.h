@@ -1,5 +1,5 @@
-#ifndef codexion_h
-# define codexion_h
+#ifndef CODEXION_H
+# define CODEXION_H
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -72,27 +72,36 @@ typedef struct s_pqueue
 }	t_pqueue;
 
 //	utils.c
-long	get_time_ms(void);
-int		is_sim_over(t_sim *sim);
+long		get_time_ms(void);
+int			is_sim_over(t_sim *sim);
 
 //	log.c
-void	log_state(t_sim *sim, int id, char *msg);
-void	log_burnout(t_sim *sim, int id);
+void		log_state(t_sim *sim, int id, char *msg);
+void		log_burnout(t_sim *sim, int id);
 
 //	dongle.c
-void	release_dongle(t_dongle *dongle, t_sim *sim);
-void	take_dongle(t_dongle *dongle, t_coder *coder);
-void	take_two_dongle(t_coder *coder);
+void		release_dongle(t_dongle *dongle, t_sim *sim);
+void		take_dongle(t_dongle *dongle, t_coder *coder);
+void		take_two_dongle(t_coder *coder);
 
 //	coder.c
-void	*coder_routine(void *arg);
+void		*coder_routine(void *arg);
 
 //	main.c
-int	launch_threads(t_sim *sim);
-int	join_threads(t_sim *sim);
+int			launch_threads(t_sim *sim);
+int			join_threads(t_sim *sim);
 
 //	monitor.c
-int	check_burnout(t_sim *sim);
-int	check_all_compiled(t_sim *sim);
+void		*monitor_routine(void *arg);
+int			check_burnout(t_sim *sim);
+int			check_all_compiled(t_sim *sim);
 
-#endif // codexion_h
+//	scheduler.c
+t_request	pqueue_pop(t_pqueue *pq);
+void		pqueue_push(t_pqueue *pq, t_request req);
+t_pqueue    *pqueue_init(int capacity, char *scheduler);
+
+//	cleanup.c
+void	cleanup(t_sim *sim);
+
+#endif // CODEXION_H
