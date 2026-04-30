@@ -1,8 +1,27 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dongle.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: loboehm <loboehm@student.42nice.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/30 14:20:56 by loboehm           #+#    #+#             */
+/*   Updated: 2026/04/30 15:18:06 by loboehm          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
+
+void fill_timespec(struct timespec *ts, long long target_time_ms)
+{
+    ts->tv_sec = target_time_ms / 1000;
+    ts->tv_nsec = (target_time_ms % 1000) * 1000000;
+}
 
 void take_dongle(t_dongle *dongle, t_coder *coder)
 {
-	t_request	req;
+	t_request		req;
+	struct timespec	ts;
 
 	req.coder = coder;
 	req.timestamp = get_time_ms();
@@ -19,7 +38,13 @@ void take_dongle(t_dongle *dongle, t_coder *coder)
 			pthread_mutex_unlock(&dongle->mutex);
 			return ;
 		}
-		pthread_cond_wait(&dongle->cond, &dongle->mutex);
+		if (dongle->is_available && get_time_ms() < dongle->available_at_ms)
+		{
+			fill_timespec(&ts, dongle->available_at_ms); // Fonction helper à créer
+			pthread_cond_timedwait(&dongle->cond, &dongle->mutex, &ts);
+		}
+		else
+			pthread_cond_wait(&dongle->cond, &dongle->mutex);
 	}
 	pqueue_pop(dongle->queue);
 	dongle->is_available = 0;
