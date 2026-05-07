@@ -19,6 +19,6 @@ void log_burnout(t_sim *sim, int id)
 		sim->simulation_over = 1;
 		printf("%ld %d burned out\n", get_time_ms() - sim->start_time, id);
 	}
-	pthread_mutex_unlock(&sim->log_mutex);
 	pthread_mutex_unlock(&sim->state_mutex);
+	pthread_mutex_unlock(&sim->log_mutex);
 }

@@ -9,6 +9,7 @@ SRCS_DIR	= coders/srcs
 INCS_DIR	= coders/includes
 
 SRCS		= $(SRCS_DIR)/main.c \
+			  $(SRCS_DIR)/init.c \
 			  $(SRCS_DIR)/coder.c \
 			  $(SRCS_DIR)/monitor.c \
 			  $(SRCS_DIR)/dongle.c \

@@ -54,8 +54,6 @@ int	check_all_compiled(t_sim *sim)
 		pthread_mutex_lock(&sim->coders[i].compile_mutex);
 		count = sim->coders[i].compile_count;
 		pthread_mutex_unlock(&sim->coders[i].compile_mutex);
-//		printf("DEBUG coder %d : count=%d required=%d\n",
-//			i + 1, count, sim->nb_compiles_required); // ← temporaire
 		if (count < sim->nb_compiles_required)
 			return (0);
 		i++;
